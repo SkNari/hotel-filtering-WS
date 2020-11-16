@@ -14,6 +14,12 @@ You need to use pip to install every required packages
     pip install markdown
 ```
 
+# Run
+
+```shell
+python3 run.py
+```
+
 ## Usage
 
 All responses will have the form
