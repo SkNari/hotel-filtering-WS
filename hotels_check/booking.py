@@ -104,11 +104,11 @@ class AskBooking(Resource):
 
         # Verify if the request is correct
         if(start_date < actual_date):
-            return {'messages': 'Date not correct '}, 204
+            return {'message': 'Date not correct '}, 400
         if(nights <= 0):
-            return {'messages': 'Night can\'t be nul or negative'}, 204
+            return {'message': 'Night can\'t be nul or negative'}, 400
         if(rooms <= 0 ):
-            return {'messages': 'Rooms can\'t be nul or negative'}, 204
+            return {'message': 'Rooms can\'t be nul or negative'}, 400
 
         shelf_hotels = hotel.get_hotels_db()
         keys = list(shelf_hotels.keys())
