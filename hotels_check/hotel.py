@@ -1,12 +1,10 @@
-import markdown
-import os
 import shelve
 import datetime
 
-from flask import Flask, g
+from flask import Flask, g, request
 from flask_restful import Resource, Api, reqparse
-
-from hotels_check import booking
+from hotels_check.auth import check_token
+from hotels_check.booking import get_booking_db, delta_date
 
 def get_hotels_db():
     db = getattr(g, "_database", None)
@@ -14,24 +12,7 @@ def get_hotels_db():
         db = g._database = shelve.open("hotels.db")
     return db
 
-
 class HotelsList(Resource):
-    def delta_date(self, Date1, nights, Date2):
-        nights_date = datetime.timedelta(days = int(nights))
-        nul_date = datetime.timedelta(days = int(0))
-        if(Date1 - Date2 > nul_date):
-            if(Date1 - Date2 - nights_date >= nul_date):
-                return 1
-            else:
-                return 0
-        elif(Date1 - Date2 < nul_date):
-            if(Date1 - Date2 + nights_date <= nul_date):
-                return 1
-            else:
-                return 0
-        else:
-            return 0
-
     def get(self):
         parser = reqparse.RequestParser()
 
@@ -79,7 +60,7 @@ class HotelsList(Resource):
                 print(available_hotel)
                 total_rooms_bookings[available_hotel['identifier']] = int(available_hotel['rooms']) - rooms
 
-            shelf_booking = booking.get_booking_db()
+            shelf_booking = get_booking_db()
             keys = list(shelf_booking.keys())
             
             # Vérification des hotels disponible en fonction des dates de tous les bookings
@@ -92,7 +73,7 @@ class HotelsList(Resource):
                         booking_start_date = datetime.date(int(array_booking_start_date[2]), int(array_booking_start_date[1]), int(array_booking_start_date[0]))
                         booking_nights = shelf_booking[key]['nights']
                         # Si la reservation est s'interpose sur le booking alors on soustrait le nombre de room
-                        if(not self.delta_date(start_date,nights,booking_start_date) and not self.delta_date(booking_start_date, booking_nights, start_date)):
+                        if(not delta_date(start_date,nights,booking_start_date) and not delta_date(booking_start_date, booking_nights, start_date)):
                             for i in range(len(available_hotels)):
                                 if (available_hotels[i]['identifier'] == shelf_booking[key]["hotel_identifier"]):
                                     if( total_rooms_bookings[shelf_booking[key]["hotel_identifier"]] - int(shelf_booking[key]['rooms'])< 0):
@@ -116,25 +97,30 @@ class HotelsList(Resource):
             return {'data': hotels}, 200
     
     def put(self):
-        parser = reqparse.RequestParser()
+        token = request.headers.get('token')
+        res_token = check_token(token)
+        if res_token[0] == 1:
+            parser = reqparse.RequestParser()
 
-        # Déparsage de tous les arguments
-        parser.add_argument('name', required = True)
-        parser.add_argument('rooms', required = True)
+            # Déparsage de tous les arguments
+            parser.add_argument('name', required = True)
+            parser.add_argument('rooms', required = True)
 
-        #Parse the arguments into an object
-        args = parser.parse_args()
+            #Parse the arguments into an object
+            args = parser.parse_args()
 
-        # Récupération de la base de donnée des hotels
-        shelf = get_hotels_db()
+            # Récupération de la base de donnée des hotels
+            shelf = get_hotels_db()
 
-        # Incrémentation de l'id
-        id_book = str(len(shelf)+1)
-        args['identifier'] = id_book
+            # Incrémentation de l'id
+            id_book = str(len(shelf)+1)
+            args['identifier'] = id_book
 
-        shelf[args['identifier']] = args
+            shelf[args['identifier']] = args
 
-        return {'data' : args}, 201
+            return {'data' : args}, 201
+        else:
+            return {'messages': 'Bad token'}, 403
     
 class Hotel(Resource):
     def get(self, identifier):
@@ -146,11 +132,17 @@ class Hotel(Resource):
         return {'data': shelf[identifier]}, 200
 
     def delete(self, identifier):
-        shelf = get_hotels_db()
+        token = request.headers.get('token')
+        res_token = check_token(token)
 
-        if not identifier in shelf:
-            return {'messages': 'Hotel not found'}, 404
+        if res_token[0] == 1:
+            shelf = get_hotels_db()
 
-        del shelf[identifier]
+            if not identifier in shelf:
+                return {'messages': 'Hotel not found'}, 404
 
-        return {''}, 204
+            del shelf[identifier]
+
+            return {''}, 204
+        else:
+            return {'messages': 'Bad token'}, 403
