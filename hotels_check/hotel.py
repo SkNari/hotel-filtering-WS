@@ -45,10 +45,12 @@ class HotelsList(Resource):
 
             actual_date = datetime.date.today()
             array_start_date = args['start_date'].split("_")
+            if(len(array_start_date) != 3):
+                return {'message': 'Date not correct '}, 400
             if(int(array_start_date[0]) < 0 or int(array_start_date[0]) > 31):
-                return {'messages': f'Date (day : {array_start_date[0]}) not correct '}, 204
+                return {'messages': f'Date (day : {array_start_date[0]}) not correct '}, 400
             if(int(array_start_date[1]) < 0 or int(array_start_date[1]) > 12):
-                return {'messages': f'Date (month : {array_start_date[1]}) not correct '}, 204
+                return {'messages': f'Date (month : {array_start_date[1]}) not correct '}, 400
 
             start_date = datetime.date(int(array_start_date[2]), int(array_start_date[1]), int(array_start_date[0]))
             nights = int(args['nights'])
