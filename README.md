@@ -9,9 +9,9 @@ ENSIIE 2020
 You need to use pip to install every required packages
 
 ```python
-    pip install flask
-    pip install flaskrestfull
-    pip install markdown
+pip install flask
+pip install flaskrestfull
+pip install markdown
 ```
 
 # Run
