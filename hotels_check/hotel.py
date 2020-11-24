@@ -57,7 +57,6 @@ class HotelsList(Resource):
 
             # Initiliasation du nombre de rooms réservé pour chaque hotel
             for available_hotel in available_hotels:
-                print(available_hotel)
                 total_rooms_bookings[available_hotel['identifier']] = int(available_hotel['rooms']) - rooms
 
             shelf_booking = get_booking_db()
@@ -65,10 +64,8 @@ class HotelsList(Resource):
             
             # Vérification des hotels disponible en fonction des dates de tous les bookings
             for key in keys:
-                #print(shelf_booking[key])
                 for available_hotel in available_hotels:
                     if(shelf_booking[key]['hotel_identifier'] == available_hotel["identifier"]):
-                        # print("shelf_booking[key] :",shelf_booking[key]['name'])
                         array_booking_start_date = shelf_booking[key]['start_date'].split("_")
                         booking_start_date = datetime.date(int(array_booking_start_date[2]), int(array_booking_start_date[1]), int(array_booking_start_date[0]))
                         booking_nights = shelf_booking[key]['nights']

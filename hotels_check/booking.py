@@ -121,8 +121,6 @@ class Booking(Resource):
 
             if not identifier in shelf:
                 return {'messages': 'Booking not found'}, 404
-            print(type(identifier))
-            print(type(shelf))
             del shelf[identifier]
 
             return {''}, 204
