@@ -32,10 +32,20 @@ class BookingList(Resource):
         shelf = get_booking_db()
         keys = list(shelf.keys())
 
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('surname', required = False)
+        args = parser.parse_args()
+
         bookings = []
-    
-        for key in keys:
-            bookings.append(shelf[key])
+
+        if(args['surname']!=None):
+            for key in keys:
+                if shelf[key]['username'] == args['surname'] :
+                    bookings.append(shelf[key])
+        else:
+            for key in keys:
+                bookings.append(shelf[key])
 
         return {'data': bookings}, 200
     
@@ -101,7 +111,7 @@ class BookingList(Resource):
 
         else:
             return {'messages': 'Bad token'}, 403
-    
+
 class Booking(Resource):
     def get(self, identifier):
         shelf = get_booking_db()
