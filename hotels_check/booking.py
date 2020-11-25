@@ -80,9 +80,9 @@ class BookingList(Resource):
             if(len(array_start_date) != 3):
                 return {'message': 'Date not correct '}, 400 
             if(int(array_start_date[0]) < 0 or int(array_start_date[0]) > 31):
-                return {'messages': f'Date (day : {array_start_date[0]}) not correct '}, 400
+                return {'message': f'Date (day : {array_start_date[0]}) not correct '}, 400
             if(int(array_start_date[1]) < 0 or int(array_start_date[1]) > 12):
-                return {'messages': f'Date (month : {array_start_date[1]}) not correct '}, 400
+                return {'message': f'Date (month : {array_start_date[1]}) not correct '}, 400
 
             # Overwrite (annule toutes les réservations sur la même période)
             actual_date = datetime.date.today()
@@ -95,11 +95,12 @@ class BookingList(Resource):
             keys = list(shelf_booking.keys())
 
             for key in keys:
-                array_booking_start_date = shelf_booking[key]['start_date'].split("_")
-                booking_start_date = datetime.date(int(array_booking_start_date[2]), int(array_booking_start_date[1]), int(array_booking_start_date[0]))
-                booking_nights = shelf_booking[key]['nights']
-                if(not delta_date(start_date,nights,booking_start_date) and not delta_date(booking_start_date, booking_nights, start_date)):
-                    Booking.delete(None,shelf_booking[key]['identifier'])
+                if shelf_booking[key]['username']==args['username']:
+                    array_booking_start_date = shelf_booking[key]['start_date'].split("_")
+                    booking_start_date = datetime.date(int(array_booking_start_date[2]), int(array_booking_start_date[1]), int(array_booking_start_date[0]))
+                    booking_nights = shelf_booking[key]['nights']
+                    if(not delta_date(start_date,nights,booking_start_date) and not delta_date(booking_start_date, booking_nights, start_date)):
+                        Booking.delete(None,shelf_booking[key]['identifier'])
                 
             # Incrémentation de l'id
             id_book = str(len(shelf_booking)+1)
@@ -110,14 +111,14 @@ class BookingList(Resource):
             return {'data' : args}, 201
 
         else:
-            return {'messages': 'Bad token'}, 403
+            return {'message': 'Bad token'}, 403
 
 class Booking(Resource):
     def get(self, identifier):
         shelf = get_booking_db()
 
         if not identifier in shelf:
-            return {'messages': 'Booking not found'}, 404
+            return {'message': 'Booking not found'}, 404
         
         return {'data': shelf[identifier]}, 200
 
@@ -130,10 +131,13 @@ class Booking(Resource):
             shelf = get_booking_db()
 
             if not identifier in shelf:
-                return {'messages': 'Booking not found'}, 404
+                return {'message': 'Booking not found'}, 404
+            
+            if not shelf[identifier]['username']==res_token[1]:
+                return {'message': 'Unauthorized to delete this ressource'}, 403
             del shelf[identifier]
 
-            return {''}, 204
+            return {'message': 'deleted'}, 200
 
         else:
-            return {'messages': 'Bad token'}, 403
+            return {'message': 'Bad token'}, 403
