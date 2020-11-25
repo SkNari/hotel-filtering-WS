@@ -1,6 +1,7 @@
 import markdown
 import os
 import shelve
+import requests
 
 from flask import Flask, g
 from flask_restful import Resource, Api, reqparse
@@ -35,4 +36,3 @@ api.add_resource(hotel.HotelsList, '/hotels')
 api.add_resource(hotel.Hotel, '/hotel/<string:identifier>')
 api.add_resource(booking.BookingList, '/bookings')
 api.add_resource(booking.Booking, '/booking/<string:identifier>')
-api.add_resource(booking.AskBooking, '/ask_booking')
