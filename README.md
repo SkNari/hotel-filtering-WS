@@ -53,17 +53,18 @@ Get every bookings
 
 Get a specific booking
 `Get /booking/<string:identifier>`
+`Get /booking/<string:username>`
 
 Get every available hotel for a request
 `Get /ask_booking?start_date=<XX DAY>_<XX MONTH>_<XXXX YEAR>&nights=<number_of_nights>&rooms=<number_of_rooms>`
 
-***Post***
+***Put***
 
 Add a hotel with an id, a name and a number of rooms
-`Post /hotels       arguments : 'identifier', 'name', 'rooms'`
+`Put /hotels       arguments : 'identifier', 'name', 'rooms'`
 
 Add a booking with an id, a name, a surname, a start date, a number of nights and a hotel id
-`Post /bookings     arguments : 'identifier', 'name', 'surname', 'start_date (XX_XX_XXXX)', 'nights', 'hotel_identifier'`
+`Put /bookings     arguments : 'identifier', 'name', 'surname', 'start_date (XX_XX_XXXX)', 'nights', 'hotel_identifier'`
 
 ***Delete***
 
@@ -76,6 +77,8 @@ Delete a specific booking
 **Response**
 
 - `200 OK` on success
-- `204 ERROR` data not correct
+- `400 ERROR` data not correct
+- `403 ERROR` invalid authentification
 - `404 ERROR` url not found
+
 
