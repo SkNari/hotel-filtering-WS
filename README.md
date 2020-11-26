@@ -78,7 +78,7 @@ Delete a specific booking
 
 - `200 OK` on success
 - `400 ERROR` data not correct
-- `403 ERROR` token invalid
+- `403 ERROR` invalid authentification
 - `404 ERROR` url not found
 
 
