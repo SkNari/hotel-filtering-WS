@@ -34,14 +34,14 @@ class BookingList(Resource):
 
         parser = reqparse.RequestParser()
 
-        parser.add_argument('surname', required = False)
+        parser.add_argument('username', required = False)
         args = parser.parse_args()
 
         bookings = []
 
-        if(args['surname']!=None):
+        if(args['username']!=None):
             for key in keys:
-                if shelf[key]['username'] == args['surname'] :
+                if shelf[key]['username'] == args['username'] :
                     bookings.append(shelf[key])
         else:
             for key in keys:
